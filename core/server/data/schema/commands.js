@@ -1,12 +1,12 @@
-var _ = require('lodash'),
-    Promise = require('bluebird'),
-    common = require('../../lib/common'),
-    db = require('../db'),
-    schema = require('./schema'),
-    clients = require('./clients');
+const _ = require('lodash');
+const Promise = require('bluebird');
+const {i18n, logging} = require('../../lib/common');
+const db = require('../db');
+const schema = require('./schema');
+const clients = require('./clients');
 
 function addTableColumn(tableName, table, columnName, columnSpec = schema[tableName][columnName]) {
-    var column;
+    let column;
 
     // creation distinguishes between text with fieldtype, string with maxlength and all others
     if (columnSpec.type === 'text' && Object.prototype.hasOwnProperty.call(columnSpec, 'fieldtype')) {
@@ -83,7 +83,7 @@ function createTable(table, transaction) {
             }
 
             return (transaction || db.knex).schema.createTable(table, function (t) {
-                var columnKeys = _.keys(schema[table]);
+                const columnKeys = _.keys(schema[table]);
                 _.each(columnKeys, function (column) {
                     return addTableColumn(table, t, column);
                 });
@@ -96,44 +96,44 @@ function deleteTable(table, transaction) {
 }
 
 function getTables(transaction) {
-    var client = (transaction || db.knex).client.config.client;
+    const client = (transaction || db.knex).client.config.client;
 
     if (_.includes(_.keys(clients), client)) {
         return clients[client].getTables(transaction);
     }
 
-    return Promise.reject(common.i18n.t('notices.data.utils.index.noSupportForDatabase', {client: client}));
+    return Promise.reject(i18n.t('notices.data.utils.index.noSupportForDatabase', {client: client}));
 }
 
 function getIndexes(table, transaction) {
-    var client = (transaction || db.knex).client.config.client;
+    const client = (transaction || db.knex).client.config.client;
 
     if (_.includes(_.keys(clients), client)) {
         return clients[client].getIndexes(table, transaction);
     }
 
-    return Promise.reject(common.i18n.t('notices.data.utils.index.noSupportForDatabase', {client: client}));
+    return Promise.reject(i18n.t('notices.data.utils.index.noSupportForDatabase', {client: client}));
 }
 
 function getColumns(table, transaction) {
-    var client = (transaction || db.knex).client.config.client;
+    const client = (transaction || db.knex).client.config.client;
 
     if (_.includes(_.keys(clients), client)) {
         return clients[client].getColumns(table);
     }
 
-    return Promise.reject(common.i18n.t('notices.data.utils.index.noSupportForDatabase', {client: client}));
+    return Promise.reject(i18n.t('notices.data.utils.index.noSupportForDatabase', {client: client}));
 }
 
 function checkTables(transaction) {
-    var client = (transaction || db.knex).client.config.client;
+    const client = (transaction || db.knex).client.config.client;
 
     if (client === 'mysql') {
         return clients[client].checkPostTable();
     }
 }
 
-const createLog = type => msg => common.logging[type](msg);
+const createLog = type => msg => logging[type](msg);
 
 function createColumnMigration(...migrations) {
     async function runColumnMigration(conn, migration) {

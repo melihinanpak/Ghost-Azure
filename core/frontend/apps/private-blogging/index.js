@@ -1,10 +1,12 @@
-const urlUtils = require('../../../server/lib/url-utils'),
-    common = require('../../../server/lib/common'),
-    middleware = require('./lib/middleware'),
-    router = require('./lib/router'),
-    registerHelpers = require('./lib/helpers'),
-    // routeKeywords.private: 'private'
-    PRIVATE_KEYWORD = 'private';
+const urlUtils = require('../../../server/lib/url-utils');
+const {logging, i18n} = require('../../../server/lib/common');
+const errors = require('@tryghost/errors');
+const middleware = require('./lib/middleware');
+const router = require('./lib/router');
+const registerHelpers = require('./lib/helpers');
+
+// routeKeywords.private: 'private'
+const PRIVATE_KEYWORD = 'private';
 
 let checkSubdir = function checkSubdir() {
     let paths = '';
@@ -13,10 +15,10 @@ let checkSubdir = function checkSubdir() {
         paths = urlUtils.getSubdir().split('/');
 
         if (paths.pop() === PRIVATE_KEYWORD) {
-            common.logging.error(new common.errors.GhostError({
-                message: common.i18n.t('errors.config.urlCannotContainPrivateSubdir.error'),
-                context: common.i18n.t('errors.config.urlCannotContainPrivateSubdir.description'),
-                help: common.i18n.t('errors.config.urlCannotContainPrivateSubdir.help')
+            logging.error(new errors.GhostError({
+                message: i18n.t('errors.config.urlCannotContainPrivateSubdir.error'),
+                context: i18n.t('errors.config.urlCannotContainPrivateSubdir.description'),
+                help: i18n.t('errors.config.urlCannotContainPrivateSubdir.help')
             }));
 
             // @TODO: why
