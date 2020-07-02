@@ -6,11 +6,11 @@ const {URL} = require('url');
 const errors = require('@tryghost/errors');
 
 // App requires
-const config = require('../../config');
+const config = require('../../../shared/config');
 const constants = require('../../lib/constants');
 const storage = require('../../adapters/storage');
 const urlService = require('../../../frontend/services/url');
-const urlUtils = require('../../lib/url-utils');
+const urlUtils = require('../../../shared/url-utils');
 const sitemapHandler = require('../../../frontend/services/sitemap/handler');
 const appService = require('../../../frontend/services/apps');
 const themeService = require('../../../frontend/services/themes');
@@ -135,13 +135,6 @@ module.exports = function setupSiteApp(options = {}) {
     siteApp.use(themeMiddleware);
     debug('Themes done');
 
-    // Theme static assets/files
-    siteApp.use(mw.staticTheme());
-    debug('Static content done');
-
-    // Serve robots.txt if not found in theme
-    siteApp.use(mw.servePublicFile('robots.txt', 'text/plain', constants.ONE_HOUR_S));
-
     // setup middleware for internal apps
     // @TODO: refactor this to be a proper app middleware hook for internal apps
     config.get('apps:internal').forEach((appName) => {
@@ -151,6 +144,13 @@ module.exports = function setupSiteApp(options = {}) {
             app.setupMiddleware(siteApp);
         }
     });
+
+    // Theme static assets/files
+    siteApp.use(mw.staticTheme());
+    debug('Static content done');
+
+    // Serve robots.txt if not found in theme
+    siteApp.use(mw.servePublicFile('robots.txt', 'text/plain', constants.ONE_HOUR_S));
 
     // site map - this should probably be refactored to be an internal app
     sitemapHandler(siteApp);
@@ -183,6 +183,13 @@ module.exports = function setupSiteApp(options = {}) {
 
     // ### Error handlers
     siteApp.use(shared.middlewares.errorHandler.pageNotFound);
+    config.get('apps:internal').forEach((appName) => {
+        const app = require(path.join(config.get('paths').internalAppPath, appName));
+
+        if (Object.prototype.hasOwnProperty.call(app, 'setupErrorHandling')) {
+            app.setupErrorHandling(siteApp);
+        }
+    });
     siteApp.use(shared.middlewares.errorHandler.handleThemeResponse);
 
     debug('Site setup end');

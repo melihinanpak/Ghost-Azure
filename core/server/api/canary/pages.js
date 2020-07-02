@@ -1,7 +1,7 @@
 const models = require('../../models');
 const {i18n} = require('../../lib/common');
 const errors = require('@tryghost/errors');
-const urlUtils = require('../../lib/url-utils');
+const urlUtils = require('../../../shared/url-utils');
 const ALLOWED_INCLUDES = ['tags', 'authors', 'authors.roles'];
 const UNSAFE_ATTRS = ['status', 'authors', 'visibility'];
 
@@ -87,6 +87,7 @@ module.exports = {
         headers: {},
         options: [
             'include',
+            'formats',
             'source'
         ],
         validation: {
@@ -122,7 +123,9 @@ module.exports = {
         options: [
             'include',
             'id',
+            'formats',
             'source',
+            'force_rerender',
             // NOTE: only for internal context
             'forUpdate',
             'transacting'

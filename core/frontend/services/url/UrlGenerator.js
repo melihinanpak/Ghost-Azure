@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const nql = require('@nexes/nql');
 const debug = require('ghost-ignition').debug('services:url:generator');
-const localUtils = require('../../../server/lib/url-utils');
+const localUtils = require('../../../shared/url-utils');
 
 // @TODO: merge with filter plugin
 const EXPANSIONS = [{
@@ -23,8 +23,6 @@ const EXPANSIONS = [{
     key: 'primary_author',
     replacement: 'primary_author.slug'
 }];
-
-const mapNQLKeyValues = require('../../../shared/nql-map-key-values');
 
 /**
  * The UrlGenerator class is responsible to generate urls based on a router's conditions.
@@ -49,7 +47,7 @@ class UrlGenerator {
             this.filter = this.router.getFilter();
             this.nql = nql(this.filter, {
                 expansions: EXPANSIONS,
-                transformer: mapNQLKeyValues({
+                transformer: nql.utils.mapKeyValues({
                     key: {
                         from: 'page',
                         to: 'type'

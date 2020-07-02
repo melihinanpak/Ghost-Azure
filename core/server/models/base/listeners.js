@@ -1,7 +1,8 @@
 const moment = require('moment-timezone');
 const _ = require('lodash');
 const models = require('../../models');
-const {events, logging} = require('../../lib/common');
+const {events} = require('../../lib/common');
+const logging = require('../../../shared/logging');
 const errors = require('@tryghost/errors');
 const sequence = require('../../lib/promise/sequence');
 
@@ -10,7 +11,7 @@ const sequence = require('../../lib/promise/sequence');
  * - reschedule all scheduled posts
  * - draft scheduled posts, when the published_at would be in the past
  */
-events.on('settings.active_timezone.edited', function (settingModel, options) {
+events.on('settings.timezone.edited', function (settingModel, options) {
     options = options || {};
     options = _.merge({}, options, {context: {internal: true}});
 

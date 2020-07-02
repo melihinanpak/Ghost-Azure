@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
-const {i18n, logging} = require('../../lib/common');
+const {i18n} = require('../../lib/common');
+const logging = require('../../../shared/logging');
 const db = require('../db');
 const schema = require('./schema');
 const clients = require('./clients');
@@ -53,20 +54,20 @@ function addColumn(tableName, column, transaction, columnSpec) {
     });
 }
 
-function dropColumn(table, column, transaction) {
-    return (transaction || db.knex).schema.table(table, function (table) {
+function dropColumn(tableName, column, transaction) {
+    return (transaction || db.knex).schema.table(tableName, function (table) {
         table.dropColumn(column);
     });
 }
 
-function addUnique(table, column, transaction) {
-    return (transaction || db.knex).schema.table(table, function (table) {
+function addUnique(tableName, column, transaction) {
+    return (transaction || db.knex).schema.table(tableName, function (table) {
         table.unique(column);
     });
 }
 
-function dropUnique(table, column, transaction) {
-    return (transaction || db.knex).schema.table(table, function (table) {
+function dropUnique(tableName, column, transaction) {
+    return (transaction || db.knex).schema.table(tableName, function (table) {
         table.dropUnique(column);
     });
 }
@@ -151,7 +152,7 @@ function createColumnMigration(...migrations) {
 
         const log = createLog(isInCorrectState ? 'warn' : 'info');
 
-        log(`${operationVerb} ${table}.${column}`);
+        log(`${operationVerb} ${table}.${column} column`);
 
         if (!isInCorrectState) {
             await operation(table, column, conn, columnDefinition);

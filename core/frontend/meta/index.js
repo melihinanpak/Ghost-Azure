@@ -1,7 +1,7 @@
 const Promise = require('bluebird');
 const settingsCache = require('../../server/services/settings/cache');
-const urlUtils = require('../../server/lib/url-utils');
-const {logging} = require('../../server/lib/common');
+const urlUtils = require('../../shared/url-utils');
+const logging = require('../../shared/logging');
 const getUrl = require('./url');
 const getImageDimensions = require('./image-dimensions');
 const getCanonicalUrl = require('./canonical_url');
@@ -64,7 +64,7 @@ function getMetaData(data, root) {
             url: urlUtils.urlFor('home', true),
             facebook: settingsCache.get('facebook'),
             twitter: settingsCache.get('twitter'),
-            timezone: settingsCache.get('active_timezone'),
+            timezone: settingsCache.get('timezone'),
             navigation: settingsCache.get('navigation'),
             icon: settingsCache.get('icon'),
             cover_image: settingsCache.get('cover_image'),
