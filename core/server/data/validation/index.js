@@ -8,10 +8,6 @@ const {i18n} = require('../../lib/common');
 const errors = require('@tryghost/errors');
 const settingsCache = require('../../services/settings/cache');
 const urlUtils = require('../../../shared/url-utils');
-let validatePassword;
-let validateSchema;
-let validateSettings;
-let validate;
 
 function assertString(input) {
     assert(typeof input === 'string', 'Validator js validates strings only');
@@ -92,7 +88,7 @@ validator.extend('isSlug', function isSlug(str) {
  * invalid password: `validationResult: {isValid: false, message: 'Sorry, you cannot use an insecure password.'}`
  * valid password: `validationResult: {isValid: true}`
  */
-validatePassword = function validatePassword(password, email, blogTitle) {
+function validatePassword(password, email, blogTitle) {
     const validationResult = {isValid: true};
     const disallowedPasswords = ['password', 'ghost', 'passw0rd'];
     let blogUrl = urlUtils.urlFor('home', true);
@@ -159,7 +155,7 @@ validatePassword = function validatePassword(password, email, blogTitle) {
     }
 
     return validationResult;
-};
+}
 
 /**
  * Validate model against schema.
@@ -176,7 +172,7 @@ validatePassword = function validatePassword(password, email, blogTitle) {
  * ## on model add
  * - validate everything to catch required fields
  */
-validateSchema = function validateSchema(tableName, model, options) {
+function validateSchema(tableName, model, options) {
     options = options || {};
 
     const columns = _.keys(schema[tableName]);
@@ -271,26 +267,7 @@ validateSchema = function validateSchema(tableName, model, options) {
     }
 
     return Promise.resolve();
-};
-
-// Validation for settings
-// settings are checked against the validation objects
-// form default-settings.json
-validateSettings = function validateSettings(defaultSettings, model) {
-    const values = model.toJSON();
-    let validationErrors = [];
-    const matchingDefault = defaultSettings[values.key];
-
-    if (matchingDefault && matchingDefault.validations) {
-        validationErrors = validationErrors.concat(validate(values.value, values.key, matchingDefault.validations, 'settings'));
-    }
-
-    if (validationErrors.length !== 0) {
-        return Promise.reject(validationErrors);
-    }
-
-    return Promise.resolve();
-};
+}
 
 /**
  * Validate keys using the validator module.
@@ -313,7 +290,7 @@ validateSettings = function validateSettings(defaultSettings, model) {
  * @param {String} tableName (optional) the db table of the value to validate, used for error message.
  * @return {Array} returns an Array including the found validation errors (empty if none found);
  */
-validate = function validate(value, key, validations, tableName) {
+function validate(value, key, validations, tableName) {
     const validationErrors = [];
     let translation;
     value = _.toString(value);
@@ -356,12 +333,11 @@ validate = function validate(value, key, validations, tableName) {
     }, this);
 
     return validationErrors;
-};
+}
 
 module.exports = {
-    validate: validate,
-    validator: validator,
-    validatePassword: validatePassword,
-    validateSchema: validateSchema,
-    validateSettings: validateSettings
+    validate,
+    validator,
+    validatePassword,
+    validateSchema
 };

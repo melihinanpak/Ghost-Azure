@@ -7,7 +7,10 @@ module.exports = {
 
     add: {
         statusCode: 201,
-        headers: {},
+        headers: {
+            // NOTE: remove if there is ever a 'read' method
+            location: false
+        },
         options: [],
         data: [],
         validation: {
@@ -39,7 +42,33 @@ module.exports = {
     },
 
     edit: {
-        permissions: true,
+        permissions: {
+            before: (frame) => {
+                if (frame.options.context && frame.options.context.integration && frame.options.context.integration.id) {
+                    return models.Webhook.findOne({id: frame.options.id})
+                        .then((webhook) => {
+                            if (!webhook) {
+                                throw new errors.NotFoundError({
+                                    message: i18n.t('errors.api.resource.resourceNotFound', {
+                                        resource: 'Webhook'
+                                    })
+                                });
+                            }
+
+                            if (webhook.get('integration_id') !== frame.options.context.integration.id) {
+                                throw new errors.NoPermissionError({
+                                    message: i18n.t('errors.api.webhooks.noPermissionToEdit.message', {
+                                        method: 'edit'
+                                    }),
+                                    context: i18n.t('errors.api.webhooks.noPermissionToEdit.context', {
+                                        method: 'edit'
+                                    })
+                                });
+                            }
+                        });
+                }
+            }
+        },
         data: [
             'name',
             'event',
@@ -82,7 +111,33 @@ module.exports = {
                 }
             }
         },
-        permissions: true,
+        permissions: {
+            before: (frame) => {
+                if (frame.options.context && frame.options.context.integration && frame.options.context.integration.id) {
+                    return models.Webhook.findOne({id: frame.options.id})
+                        .then((webhook) => {
+                            if (!webhook) {
+                                throw new errors.NotFoundError({
+                                    message: i18n.t('errors.api.resource.resourceNotFound', {
+                                        resource: 'Webhook'
+                                    })
+                                });
+                            }
+
+                            if (webhook.get('integration_id') !== frame.options.context.integration.id) {
+                                throw new errors.NoPermissionError({
+                                    message: i18n.t('errors.api.webhooks.noPermissionToEdit.message', {
+                                        method: 'destroy'
+                                    }),
+                                    context: i18n.t('errors.api.webhooks.noPermissionToEdit.context', {
+                                        method: 'destroy'
+                                    })
+                                });
+                            }
+                        });
+                }
+            }
+        },
         query(frame) {
             frame.options.require = true;
             return models.Webhook.destroy(frame.options)

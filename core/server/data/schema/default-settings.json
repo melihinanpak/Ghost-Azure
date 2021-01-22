@@ -4,6 +4,10 @@
             "defaultValue": null,
             "type": "string"
         },
+        "routes_hash": {
+            "defaultValue": null,
+            "type": "string"
+        },
         "next_update_check": {
             "defaultValue": null,
             "type": "number"
@@ -37,6 +41,14 @@
             "type": "string"
         },
         "members_email_auth_secret": {
+            "defaultValue": null,
+            "type": "string"
+        },
+        "members_stripe_webhook_id": {
+            "defaultValue": null,
+            "type": "string"
+        },
+        "members_stripe_webhook_secret": {
             "defaultValue": null,
             "type": "string"
         }
@@ -107,7 +119,7 @@
             "type": "string"
         },
         "twitter": {
-            "defaultValue": "tryghost",
+            "defaultValue": "ghost",
             "type": "string"
         },
         "navigation": {
@@ -233,6 +245,27 @@
             "flags": "RO",
             "type": "string"
         },
+        "members_support_address": {
+            "defaultValue": "noreply",
+            "flags": "PUBLIC,RO",
+            "type": "string"
+        },
+        "members_reply_address": {
+            "defaultValue": "newsletter",
+            "validations": {
+                "isEmpty": false,
+                "isIn": [["newsletter", "support"]]
+            },
+            "type": "string"
+        },
+        "members_free_signup_redirect": {
+            "defaultValue": "/",
+            "type": "string"
+        },
+        "members_paid_signup_redirect": {
+            "defaultValue": "/",
+            "type": "string"
+        },
         "stripe_product_name": {
             "defaultValue": "Ghost Subscription",
             "type": "string"
@@ -290,12 +323,44 @@
         "portal_plans": {
             "defaultValue": "[\"free\", \"monthly\", \"yearly\"]",
             "type": "array"
+        },
+        "portal_button_style": {
+            "defaultValue": "icon-and-text",
+            "validations": {
+                "isEmpty": false,
+                "isIn": [["text-only", "icon-and-text", "icon-only"]]
+            },
+            "type": "string"
+        },
+        "portal_button_icon": {
+            "defaultValue": null,
+            "type": "string"
+        },
+        "portal_button_signup_text": {
+            "defaultValue": "Subscribe",
+            "type": "string"
         }
     },
     "email": {
-        "bulk_email_settings": {
-            "defaultValue": "{\"provider\":\"mailgun\", \"apiKey\": \"\", \"domain\": \"\", \"baseUrl\": \"\"}",
-            "type": "object"
+        "mailgun_domain": {
+            "defaultValue": null,
+            "type": "string"
+        },
+        "mailgun_api_key": {
+            "defaultValue": null,
+            "type": "string"
+        },
+        "mailgun_base_url": {
+            "defaultValue": null,
+            "type": "string"
+        },
+        "email_track_opens": {
+            "defaultValue": "true",
+            "validations": {
+                "isEmpty": false,
+                "isIn": [["true", "false"]]
+            },
+            "type": "boolean"
         }
     },
     "amp": {
@@ -305,6 +370,10 @@
                 "isIn": [["true", "false"]]
             },
             "type": "boolean"
+        },
+        "amp_gtag_id": {
+            "defaultValue": null,
+            "type": "string"
         }
     },
     "labs": {
@@ -329,6 +398,51 @@
         "shared_views": {
             "defaultValue": "[]",
             "type": "array"
+        }
+    },
+    "newsletter": {
+        "newsletter_show_badge": {
+            "defaultValue": "true",
+            "validations": {
+                "isEmpty": false,
+                "isIn": [
+                    [
+                        "true",
+                        "false"
+                    ]
+                ]
+            },
+            "type": "boolean"
+        },
+        "newsletter_show_header": {
+            "defaultValue": "true",
+            "validations": {
+                "isEmpty": false,
+                "isIn": [
+                    [
+                        "true",
+                        "false"
+                    ]
+                ]
+            },
+            "type": "boolean"
+        },
+        "newsletter_body_font_category": {
+            "defaultValue": "sans_serif",
+            "validations": {
+                "isEmpty": false,
+                "isIn": [
+                    [
+                        "serif",
+                        "sans_serif"
+                    ]
+                ]
+            },
+            "type": "string"
+        },
+        "newsletter_footer_content": {
+            "defaultValue": "",
+            "type": "string"
         }
     }
 }

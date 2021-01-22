@@ -44,6 +44,20 @@ class MembersConfigProvider {
         return fromAddress;
     }
 
+    getEmailSupportAddress() {
+        const supportAddress = this._settingsCache.get('members_support_address') || 'noreply';
+
+        // Any fromAddress without domain uses site domain, like default setting `noreply`
+        if (supportAddress.indexOf('@') < 0) {
+            return `${supportAddress}@${this._getDomain()}`;
+        }
+        return supportAddress;
+    }
+
+    getAuthEmailFromAddress() {
+        return this.getEmailSupportAddress() || this.getEmailFromAddress();
+    }
+
     getPublicPlans() {
         const CURRENCY_SYMBOLS = {
             USD: '$',
@@ -62,7 +76,7 @@ class MembersConfigProvider {
         };
 
         try {
-            const plans = this._settingsCache.get('stripe_plans');
+            const plans = this._settingsCache.get('stripe_plans') || [];
 
             const priceData = plans.reduce((prices, plan) => {
                 const numberAmount = 0 + plan.amount;
@@ -73,7 +87,7 @@ class MembersConfigProvider {
             }, {});
 
             priceData.currency = plans[0].currency || 'USD';
-            priceData.currency_symbol = CURRENCY_SYMBOLS[priceData.currency];
+            priceData.currency_symbol = CURRENCY_SYMBOLS[priceData.currency.toUpperCase()];
 
             if (Number.isInteger(priceData.monthly) && Number.isInteger(priceData.yearly)) {
                 return priceData;
@@ -133,7 +147,7 @@ class MembersConfigProvider {
     getStripeUrlConfig() {
         const siteUrl = this._urlUtils.getSiteUrl();
 
-        const webhookHandlerUrl = new URL('/members/webhooks/stripe', siteUrl);
+        const webhookHandlerUrl = new URL('members/webhooks/stripe/', siteUrl);
 
         const checkoutSuccessUrl = new URL(siteUrl);
         checkoutSuccessUrl.searchParams.set('stripe', 'success');
@@ -174,10 +188,15 @@ class MembersConfigProvider {
             billingSuccessUrl: urls.billingSuccess,
             billingCancelUrl: urls.billingCancel,
             webhookHandlerUrl: urls.webhookHandler,
+            webhook: {
+                id: this._settingsCache.get('members_stripe_webhook_id'),
+                secret: this._settingsCache.get('members_stripe_webhook_secret')
+            },
+            enablePromoCodes: this._config.get('enableStripePromoCodes'),
             product: {
                 name: this._settingsCache.get('stripe_product_name')
             },
-            plans: [COMPLIMENTARY_PLAN].concat(this._settingsCache.get('stripe_plans')),
+            plans: [COMPLIMENTARY_PLAN].concat(this._settingsCache.get('stripe_plans') || []),
             appInfo: {
                 name: 'Ghost',
                 partner_id: 'pp_partner_DKmRVtTs4j9pwZ',
@@ -218,12 +237,13 @@ class MembersConfigProvider {
         };
     }
 
-    getSigninURL(token, type) {
+    getSigninURL(token, type, requestSrc) {
         const siteUrl = this._urlUtils.getSiteUrl();
         const signinURL = new URL(siteUrl);
         signinURL.pathname = path.join(signinURL.pathname, '/members/');
+        const actionParam = requestSrc === 'portal' ? 'portal-action' : 'action';
         signinURL.searchParams.set('token', token);
-        signinURL.searchParams.set('action', type);
+        signinURL.searchParams.set(actionParam, type);
         return signinURL.href;
     }
 }

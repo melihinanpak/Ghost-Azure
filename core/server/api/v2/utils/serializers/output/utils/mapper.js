@@ -21,9 +21,9 @@ const mapTag = (model, frame) => {
     const jsonModel = model.toJSON ? model.toJSON(frame.options) : model;
 
     url.forTag(model.id, jsonModel, frame.options);
-    clean.tag(jsonModel, frame);
+    const cleanedAttrs = clean.tag(jsonModel, frame);
 
-    return jsonModel;
+    return cleanedAttrs;
 };
 
 const mapPost = (model, frame) => {
@@ -76,6 +76,7 @@ const mapPost = (model, frame) => {
 
     delete jsonModel.posts_meta;
     delete jsonModel.send_email_when_published;
+    delete jsonModel.email_recipient_filter;
     delete jsonModel.email_subject;
 
     return jsonModel;
